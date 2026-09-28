@@ -1,0 +1,95 @@
+# web复合搜索 / deep-search 配置文件
+#
+# 本文件由 scripts/ds/config.py 读取（优先 PyYAML，缺失时用内置极简解析器，
+# 因此不安装 PyYAML 也能生效）。命令行参数一律优先于本文件。
+#
+# 查看生效配置：python scripts/search.py "查询词" --show-config
+
+# ============================================================
+# 深度搜索（scripts/search.py）
+# ============================================================
+deep_search:
+  # --- 规模：越大越深，也越慢 ---
+  max_rounds: 2          # 最大轮次。1=只搜一轮；2~3 适合大多数问题
+  breadth: 5             # 首轮子查询数（主题面分解的广度）
+  follow_up: 4           # 每轮追问条数上限（由证据缺口驱动）
+  per_engine: 8          # 每个引擎每条子查询取多少条
+  fetch_top_k: 14        # 每轮最多抓取多少个页面正文
+  max_sources: 14        # 最终保留多少条证据
+  summary_sentences: 12  # 抽取式摘要句数上限
+
+  # --- 网络 ---
+  timeout: 12.0          # 单请求超时（秒）。慢引擎另有各自超时，见 engines.py
+  round_timeout: 35.0    # 单轮硬超时：到点即采用已返回结果，不被慢引擎拖死
+  concurrency: 6         # 并发度
+  retries: 1             # 失败重试次数
+  min_interval: 0.6      # 同一域名的请求最小间隔（秒），礼貌限速
+  fetch_pages: true      # false = 只做聚合检索，不抓正文（快很多）
+  min_content_chars: 200 # 正文短于此长度视为抽取失败
+
+  # --- 缓存 ---
+  cache: true
+  cache_ttl: 900         # 缓存有效期（秒）
+
+  # --- 合规 ---
+  # 抓取结果页正文时遵守 robots.txt；检索请求（搜索引擎查询）不套用 robots，
+  # 因为那等价于用户在搜索框输入（Bing/Baidu 的 robots 会禁止 /search）。
+  respect_robots: true
+
+  # --- 默认偏好（留空表示自动判断） ---
+  intent: null           # general/tech/academic/finance/news/social/knowledge/advanced
+  engines: []            # 追加引擎，如 [github, arxiv]
+  exclude_engines: []    # 排除引擎，如 [baidu]
+
+# ============================================================
+# 去重阈值（rank.dedupe）
+# ============================================================
+deduplication:
+  # URL 规范化去重始终启用（去除 utm_* 等跟踪参数与末尾斜杠）
+  url_canonicalization: true
+
+  # 标题相似度阈值：越高越严格。0.75 宽松 / 0.86 标准 / 0.92 严格
+  title_similarity_threshold: 0.86
+
+  # 正文 SimHash 指纹的海明距离阈值（64 位），越小越严格
+  fingerprint_hamming_distance: 6
+
+  # 短于此长度的标题不参与相似度比较，避免误判
+  min_title_length: 8
+
+# ============================================================
+# 排序权重（rank.score_sources）
+# ============================================================
+ranking:
+  relevance: 1.0      # BM25 相关性
+  authority: 0.45     # 来源权威度（域名分级）
+  freshness: 0.20     # 时效性
+  depth: 0.25         # 正文厚度
+  corroboration: 0.20 # 多引擎印证
+
+# ============================================================
+# 引擎权重与意图路由的覆盖项
+# 说明：引擎清单与路由定义在 scripts/ds/engines.py（ENGINES / INTENTS），
+# 这里只放需要按环境微调的权重。设成 null 表示用代码内置值。
+# ============================================================
+engine_weights:
+  bing_intl: 0.95
+  bing_cn: 0.92
+  arxiv: 0.95
+  crossref: 0.93
+  openalex: 0.92
+  github: 0.92
+  stackexchange: 0.90
+  wikipedia_zh: 0.90
+  wikipedia_en: 0.90
+  baidu: 0.88
+  hackernews: 0.78
+  brave: 0.80
+  so360: 0.70
+  sogou: 0.68
+  mojeek: 0.65
+  ecosia: 0.65
+
+# 单个引擎的超时不在本文件配置 —— 见 scripts/ds/engines.py 里各 Engine 的
+# `timeout` 字段（慢引擎如维基百科单独收紧到 9 秒）。
+# 全局超时用上面的 deep_search.timeout，单轮硬上限用 deep_search.round_timeout。

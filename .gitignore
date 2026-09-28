@@ -1,0 +1,7 @@
+# 缓存与产物
+.cache/
+out/
+*.pyc
+__pycache__/
+*.pyo
+.DS_Store
