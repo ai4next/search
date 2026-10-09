@@ -503,7 +503,7 @@ def crossref(client: HttpClient, query: str, limit: int) -> List[Hit]:
     params = {"query": query, "rows": str(limit),
               "select": "title,DOI,URL,abstract,author,issued,container-title,type"}
     data = client.get_json("https://api.crossref.org/works?" + urllib.parse.urlencode(params),
-                           headers={"User-Agent": "deep-search-skill/1.0 (mailto:example@example.com)"})
+                           headers={"User-Agent": "deep-search/1.0 (mailto:example@example.com)"})
     if not data:
         return []
     hits: List[Hit] = []
@@ -548,7 +548,7 @@ def openalex(client: HttpClient, query: str, limit: int) -> List[Hit]:
     params = {"search": query, "per-page": str(limit),
               "select": "id,doi,title,publication_year,authorships,primary_location,abstract_inverted_index,cited_by_count"}
     data = client.get_json("https://api.openalex.org/works?" + urllib.parse.urlencode(params),
-                           headers={"User-Agent": "deep-search-skill/1.0 (mailto:example@example.com)"})
+                           headers={"User-Agent": "deep-search/1.0 (mailto:example@example.com)"})
     if not data:
         return []
     hits: List[Hit] = []

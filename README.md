@@ -1,4 +1,4 @@
-# search-skill
+# search
 
 联网深度研究技能。**零第三方依赖**（只用 Python 标准库），无需 API Key。
 
@@ -68,10 +68,10 @@ python3 scripts/search.py --test
 
 ```bash
 # 装到当前项目（<项目根>/.agents/skills/search/）
-npx skills add ai4next/search-skill
+npx skills add ai4next/search
 
 # 装到用户级，所有项目可用（~/.agents/skills/search/）
-npx skills add ai4next/search-skill -g
+npx skills add ai4next/search -g
 ```
 
 ### 验证安装
@@ -120,12 +120,12 @@ DSH 只扫描技能根目录的**第一层**，两种形态：
 
 ### 两个坑
 
-- **别把仓库嵌太深**：`~/.agents/skills/foo/search-skill/` 不会被发现，
-  必须是 `~/.agents/skills/search-skill/`。
+- **别把仓库嵌太深**：`~/.agents/skills/foo/search/` 不会被发现，
+  必须是 `~/.agents/skills/search/`。
 - **在本仓库里工作时**，项目根就是本仓库，此时 `.agents/skills` 指的是
   `<本仓库>/.agents/skills` —— 仓库根目录的 SKILL.md **不会**被自动发现。
   想在本仓库内可用，按方式一装到用户级，或在仓库内建
-  `.agents/skills/search-skill` 软链指向仓库自身。
+  `.agents/skills/search` 软链指向仓库自身。
 
 ## 引擎（16 个）
 
